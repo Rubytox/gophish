@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"strings"
 	"time"
+	"os"
+	"bufio"
 
 	"github.com/NYTimes/gziphandler"
 	"github.com/gophish/gophish/config"
@@ -197,10 +199,41 @@ func (ps *PhishingServer) ReportHandler(w http.ResponseWriter, r *http.Request) 
 	w.WriteHeader(http.StatusNoContent)
 }
 
+func stringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
+}
+
 // PhishHandler handles incoming client connections and registers the associated actions performed
 // (such as clicked link, etc.)
 func (ps *PhishingServer) PhishHandler(w http.ResponseWriter, r *http.Request) {
-	r, err := setupContext(r)
+	log.Infof("Incoming connection from: %s", r.RemoteAddr)
+
+	file, err := os.Open("blacklist.txt")
+	if err != nil {
+		log.Fatal("Could not open blacklist file")
+	}
+	defer file.Close()
+
+	var lines []string
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
+
+	address := strings.Split(r.RemoteAddr, ":")[0]
+	log.Infof("Extracted IP: %s", address)
+	if stringInSlice(address, lines) {
+		log.Infof("Visitor is in blacklist, returning 404")
+		http.NotFound(w, r)
+		return
+	}
+
+	r, err = setupContext(r)
 	if err != nil {
 		// Log the error if it wasn't something we can safely ignore
 		if err != ErrInvalidRequest && err != ErrCampaignComplete {
@@ -209,6 +242,7 @@ func (ps *PhishingServer) PhishHandler(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
+
 	w.Header().Set("X-Server", config.ServerName) // Useful for checking if this is a GoPhish server (e.g. for campaign reporting plugins)
 	var ptx models.PhishingTemplateContext
 	// Check for a preview
