@@ -71,6 +71,32 @@ var capitalize = function (string) {
 Define our API Endpoints
 */
 var api = {
+    // blacklists contains the endpoints for /blacklists
+    blacklists: {
+        // get() - Queries the API for GET /blacklists
+        get: function () {
+            return query("/blacklists/", "GET", {}, false)
+        },
+        // post() - Posts a campaign to POST /blacklists
+        post: function (blacklist) {
+            return query("/blacklists/", "POST", blacklist, false)
+        }
+    },
+    // blacklistId contains the endpoints for /blacklists/:id
+    blacklistId: {
+        // get() - Queries for the API for GET /blacklists/:id
+        get: function (id) {
+            return query("/blacklists/" + id, "GET", {}, false)
+        },
+        // put() - Puts a blacklist to PUT /blacklists/:id
+        put: function (blacklist) {
+            return query("/blacklists/" + blacklist.id, "PUT", blacklist, false)
+        },
+        // delete() - Deletes a blacklist at DELETE /blacklists/:id
+        delete: function (id) {
+            return query("/blacklists/" + id, "DELETE", {}, false)
+        }
+    },
     // campaigns contains the endpoints for /campaigns
     campaigns: {
         // get() - Queries the API for GET /campaigns
