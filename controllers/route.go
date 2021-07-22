@@ -123,6 +123,7 @@ func (as *AdminServer) registerRoutes() {
 	router := mux.NewRouter()
 	// Base Front-end routes
 	router.HandleFunc("/", mid.Use(as.Base, mid.RequireLogin))
+	router.HandleFunc("/blacklist", mid.Use(as.Blacklist, mid.RequireLogin))
 	router.HandleFunc("/login", mid.Use(as.Login, as.limiter.Limit))
 	router.HandleFunc("/logout", mid.Use(as.Logout, mid.RequireLogin))
 	router.HandleFunc("/reset_password", mid.Use(as.ResetPassword, mid.RequireLogin))
@@ -201,12 +202,20 @@ func (as *AdminServer) Base(w http.ResponseWriter, r *http.Request) {
 	getTemplate(w, "dashboard").ExecuteTemplate(w, "base", params)
 }
 
+// Blacklist handles the default path and template execution
+func (as *AdminServer) Blacklist(w http.ResponseWriter, r *http.Request) {
+	params := newTemplateParams(r)
+	params.Title = "Blacklist"
+	getTemplate(w, "blacklist").ExecuteTemplate(w, "base", params)
+}
+
 // Campaigns handles the default path and template execution
 func (as *AdminServer) Campaigns(w http.ResponseWriter, r *http.Request) {
 	params := newTemplateParams(r)
 	params.Title = "Campaigns"
 	getTemplate(w, "campaigns").ExecuteTemplate(w, "base", params)
 }
+
 
 // CampaignID handles the default path and template execution
 func (as *AdminServer) CampaignID(w http.ResponseWriter, r *http.Request) {

