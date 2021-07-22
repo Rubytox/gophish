@@ -12,10 +12,11 @@ function save(idx) {
     var blacklist = {}
     blacklist.name = $("#name").val()
     editor = CKEDITOR.instances["html_editor"]
-    blacklist.ips = editor.getData().split('\n')
-    console.log(idx)
+    blacklist.ips = editor.getData()
+    console.log(blacklist.ips)
     if (idx != -1) {
         blacklist.id = blacklists[idx].id
+        console.log(blacklists)
         api.blacklistId.put(blacklist)
             .success(function (data) {
                 successFlash("Blacklist edited successfully!")
@@ -24,7 +25,7 @@ function save(idx) {
             })
     } else {
         // Submit the blacklist
-        api.blacklist.post(blacklist)
+        api.blacklists.post(blacklist)
             .success(function (data) {
                 successFlash("Blacklist added successfully!")
                 load()
@@ -90,7 +91,7 @@ function edit(idx) {
     if (idx != -1) {
         blacklist = blacklists[idx]
         $("#name").val(blacklist.name)
-        $("#html_editor").val(blacklist.ips.join('\n'))
+        $("#html_editor").val(blacklist.ips)
     }
 }
 
@@ -101,7 +102,7 @@ function copy(idx) {
     $("#html_editor").ckeditor()
     var blacklist = blacklists[idx]
     $("#name").val("Copy of " + blacklist.name)
-    $("#html_editor").val(blacklist.ips.join('\n'))
+    $("#html_editor").val(blacklist.ips)
 }
 
 function load() {
@@ -111,7 +112,7 @@ function load() {
     $("#blacklistsTable").hide()
     $("#emptyMessage").hide()
     $("#loading").show()
-    api.blacklist.get()
+    api.blacklists.get()
         .success(function (ps) {
             blacklists = ps
             $("#loading").hide()
@@ -129,7 +130,7 @@ function load() {
                 $.each(blacklists, function (i, blacklist) {
                     blacklistRows.push([
                         escapeHtml(blacklist.name),
-                        moment(page.modified_date).format('MMMM Do YYYY, h:mm:ss a'),
+                        moment(blacklist.modified_date).format('MMMM Do YYYY, h:mm:ss a'),
                         "<div class='pull-right'><span data-toggle='modal' data-backdrop='static' data-target='#modal'><button class='btn btn-primary' data-toggle='tooltip' data-placement='left' title='Edit Page' onclick='edit(" + i + ")'>\
                     <i class='fa fa-pencil'></i>\
                     </button></span>\

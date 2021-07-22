@@ -34,7 +34,7 @@ func (as *Server) Blacklists(w http.ResponseWriter, r *http.Request) {
 		// Check to make sure the name is unique
 		_, err = models.GetPageByName(b.Name, ctx.Get(r, "user_id").(int64))
 		if err != gorm.ErrRecordNotFound {
-			JSONResponse(w, models.Response{Success: false, Message: "Page name already in use"}, http.StatusConflict)
+			JSONResponse(w, models.Response{Success: false, Message: "Blacklist name already in use"}, http.StatusConflict)
 			log.Error(err)
 			return
 		}
@@ -86,6 +86,6 @@ func (as *Server) Blacklist(w http.ResponseWriter, r *http.Request) {
 			JSONResponse(w, models.Response{Success: false, Message: "Error updating blacklist: " + err.Error()}, http.StatusInternalServerError)
 			return
 		}
-		JSONResponse(w, p, http.StatusOK)
+		JSONResponse(w, b, http.StatusOK)
 	}
 }

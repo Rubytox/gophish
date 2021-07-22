@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS "targets" ("id" integer primary key autoincrement,"fi
 CREATE TABLE IF NOT EXISTS "smtp" ("smtp_id" integer primary key autoincrement,"campaign_id" bigint,"host" varchar(255),"username" varchar(255),"from_address" varchar(255) );
 CREATE TABLE IF NOT EXISTS "results" ("id" integer primary key autoincrement,"campaign_id" bigint,"user_id" bigint,"r_id" varchar(255),"email" varchar(255),"first_name" varchar(255),"last_name" varchar(255),"status" varchar(255) NOT NULL ,"ip" varchar(255),"latitude" real,"longitude" real );
 CREATE TABLE IF NOT EXISTS "pages" ("id" integer primary key autoincrement,"user_id" bigint,"name" varchar(255),"html" varchar(255),"modified_date" datetime );
+CREATE TABLE IF NOT EXISTS "blacklists" ("id" integer primary key autoincrement,"user_id" bigint,"name" varchar(255),"ips" varchar(255),"modified_date" datetime );
 CREATE TABLE IF NOT EXISTS "groups" ("id" integer primary key autoincrement,"user_id" bigint,"name" varchar(255),"modified_date" datetime );
 CREATE TABLE IF NOT EXISTS "group_targets" ("group_id" bigint,"target_id" bigint );
 CREATE TABLE IF NOT EXISTS "events" ("id" integer primary key autoincrement,"campaign_id" bigint,"email" varchar(255),"time" datetime,"message" varchar(255) );
@@ -21,6 +22,7 @@ DROP TABLE "events";
 DROP TABLE "group_targets";
 DROP TABLE "groups";
 DROP TABLE "pages";
+DROP TABLE "blacklists";
 DROP TABLE "results";
 DROP TABLE "smtp";
 DROP TABLE "targets";

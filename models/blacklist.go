@@ -12,7 +12,7 @@ type Blacklist struct {
 	Id           int64     `json:"id" gorm:"column:id; primary_key:yes"`
 	UserId       int64     `json:"-" gorm:"column:user_id"`
 	Name         string    `json:"name"`
-	HTML         string    `json:"html" gorm:"column:html"`
+	Ips          string    `json:"ips" gorm:"column:ips"`
 	ModifiedDate time.Time `json:"modified_date"`
 }
 
@@ -20,7 +20,7 @@ type Blacklist struct {
 var ErrBlacklistNameNotSpecified = errors.New("Blacklist Name not specified")
 
 // [TODO] Check whether content is ok i.e. list of IPs
-func (b *Blacklist) parseHTML() error {
+func (b *Blacklist) parseIPS() error {
 	return nil
 }
 
@@ -29,7 +29,7 @@ func (b *Blacklist) Validate() error {
 	if b.Name == "" {
 		return ErrBlacklistNameNotSpecified
 	}
-	return b.parseHTML()
+	return b.parseIPS()
 }
 
 // GetBlacklists returns the blacklists owned by the given user
