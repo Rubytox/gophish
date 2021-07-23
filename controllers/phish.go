@@ -224,16 +224,19 @@ func (ps *PhishingServer) PhishHandler(w http.ResponseWriter, r *http.Request) {
 	log.Infof("Campaign: %v", campaign)
 	blacklist := campaign.Blacklist
 	log.Infof("Blacklist: %v", blacklist)
-	ips := strings.Fields(blacklist.Ips)
-	log.Infof("IP's: %v", ips)
+	// Check if blacklist not empty
+	if (models.Blacklist{}) != blacklist {
+		ips := strings.Fields(blacklist.Ips)
+		log.Infof("IP's: %v", ips)
 
-	address := strings.Split(r.RemoteAddr, ":")[0]
-	log.Infof("Extracted IP: %s", address)
+		address := strings.Split(r.RemoteAddr, ":")[0]
+		log.Infof("Extracted IP: %s", address)
 
-	if stringInSlice(address, ips) {
-		log.Infof("Visitor is in blacklist, returning 302")
-		http.Redirect(w, r, "https://microsoft.com", 302)
-		return
+		if stringInSlice(address, ips) {
+			log.Infof("Visitor is in blacklist, returning 302")
+			http.Redirect(w, r, "https://microsoft.com", 302)
+			return
+		}
 	}
 
 	w.Header().Set("X-Server", config.ServerName) // Useful for checking if this is a GoPhish server (e.g. for campaign reporting plugins)

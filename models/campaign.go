@@ -545,14 +545,16 @@ func PostCampaign(c *Campaign, uid int64) error {
 	if err == gorm.ErrRecordNotFound {
 		log.WithFields(logrus.Fields{
 			"blacklist": c.Blacklist.Name,
-		}).Error("Blacklist does not exist")
-		return ErrBlacklistNotFouund
+		}).Error("No Blacklist specified")
+		c.Blacklist = Blacklist{}
+		c.BlacklistID = -1
 	} else if err != nil {
 		log.Error(err)
 		return err
+	} else {
+		c.Blacklist = b
+		c.BlacklistID = b.Id
 	}
-	c.Blacklist = b
-	c.BlacklistID = b.Id
 
 	// Insert into the DB
 	err = db.Save(c).Error
