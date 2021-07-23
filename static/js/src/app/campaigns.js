@@ -239,7 +239,7 @@ function setupOptions() {
                 });
                 var blacklist_select = $("#blacklist.form-control")
                 blacklist_select.select2({
-                    placeholder: "Select a Blacklist",
+                    placeholder: "Select a Blacklist [Optional]",
                     data: blacklist_s2,
                 });
                 /*
