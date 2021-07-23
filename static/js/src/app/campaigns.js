@@ -242,11 +242,6 @@ function setupOptions() {
                     placeholder: "Select a Blacklist [Optional]",
                     data: blacklist_s2,
                 });
-                /*
-                if (blacklists.length === 1) {
-                    blacklist_select.val(blacklist_s2[0].id)
-                    blacklist_select.trigger('change.select2')
-                }*/
             }
         });
     api.SMTP.get()
