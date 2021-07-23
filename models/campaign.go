@@ -24,6 +24,8 @@ type Campaign struct {
 	Template      Template  `json:"template"`
 	PageId        int64     `json:"-"`
 	Page          Page      `json:"page"`
+	BlacklistID   int64     `json:"-"`
+	Blacklist     Blacklist `json:"blacklist"`
 	Status        string    `json:"status"`
 	Results       []Result  `json:"results,omitempty"`
 	Groups        []Group   `json:"groups,omitempty"`
@@ -119,6 +121,8 @@ var ErrGroupNotFound = errors.New("Group not found")
 // ErrPageNotFound indicates a page specified by the user does not exist in the database
 var ErrPageNotFound = errors.New("Page not found")
 
+var ErrBlacklistNotFouund = errors.New("Blacklist not found")
+
 // ErrSMTPNotFound indicates a sending profile specified by the user does not exist in the database
 var ErrSMTPNotFound = errors.New("Sending profile not found")
 
@@ -211,6 +215,14 @@ func (c *Campaign) getDetails() error {
 		}
 		c.Page = Page{Name: "[Deleted]"}
 		log.Warnf("%s: page not found for campaign", err)
+	}
+	err = db.Table("blacklists").Where("id=?", c.BlacklistID).Find(&c.Blacklist).Error
+	if err != nil {
+		if err != gorm.ErrRecordNotFound {
+			return err
+		}
+		c.Blacklist = Blacklist{Name: "[Deleted]"}
+		log.Warnf("%s: blacklist not found for campaign", err)
 	}
 	err = db.Table("smtp").Where("id=?", c.SMTPId).Find(&c.SMTP).Error
 	if err != nil {
@@ -526,6 +538,22 @@ func PostCampaign(c *Campaign, uid int64) error {
 	}
 	c.SMTP = s
 	c.SMTPId = s.Id
+
+	// Check to make sure the blacklist exists
+	// [TODO] It is optional so maybe not check?
+	b, err := GetBlacklistByName(c.Blacklist.Name, uid)
+	if err == gorm.ErrRecordNotFound {
+		log.WithFields(logrus.Fields{
+			"blacklist": c.Blacklist.Name,
+		}).Error("Blacklist does not exist")
+		return ErrBlacklistNotFouund
+	} else if err != nil {
+		log.Error(err)
+		return err
+	}
+	c.Blacklist = b
+	c.BlacklistID = b.Id
+
 	// Insert into the DB
 	err = db.Save(c).Error
 	if err != nil {

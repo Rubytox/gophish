@@ -46,6 +46,9 @@ function launch() {
                     page: {
                         name: $("#page").select2("data")[0].text
                     },
+                    blacklist: {
+                        name: $("#blacklist").select2("data")[0].text
+                    },
                     smtp: {
                         name: $("#profile").select2("data")[0].text
                     },
@@ -119,6 +122,7 @@ function dismiss() {
     $("#name").val("");
     $("#template").val("").change();
     $("#page").val("").change();
+    $("#blacklist").val("").change();
     $("#url").val("");
     $("#profile").val("").change();
     $("#users").val("").change();
@@ -223,6 +227,27 @@ function setupOptions() {
                 }
             }
         });
+    api.blacklists.get()
+        .success(function (blacklists) {
+            if (blacklists.length == 0) {
+                modalError("No blacklists found!")
+                return false
+            } else {
+                var blacklist_s2 = $.map(blacklists, function (obj) {
+                    obj.text = obj.name
+                    return obj
+                });
+                var blacklist_select = $("#blacklist.form-control")
+                blacklist_select.select2({
+                    placeholder: "Select a Blacklist",
+                    data: blacklist_s2,
+                });
+                if (blacklists.length === 1) {
+                    blacklist_select.val(blacklist_s2[0].id)
+                    blacklist_select.trigger('change.select2')
+                }
+            }
+        });
     api.SMTP.get()
         .success(function (profiles) {
             if (profiles.length == 0) {
@@ -272,6 +297,16 @@ function copy(idx) {
                 $("#page").val(campaign.page.id.toString());
                 $("#page").trigger("change.select2")
             }
+
+            if (!campaign.blacklist.id) {
+                $("#blacklist").select2({
+                    placeholder: campaign.blacklist.name
+                });
+            } else {
+                $("#blacklist").val(campaign.blacklist.id.toString());
+                $("#blacklist").trigger("change.select2")
+            }
+            
             if (!campaign.smtp.id) {
                 $("#profile").select2({
                     placeholder: campaign.smtp.name

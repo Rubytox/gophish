@@ -95,6 +95,10 @@
                     <select class="form-control" placeholder="Landing Page" id="page" />
                     <option></option>
                     </select>
+                    <label class="control-label" for="blacklist">Blacklist:</label>
+                    <select class="form-control" placeholder="Blacklist" id="blacklist" />
+                    <option></option>
+                    </select>
                     <label class="control-label" for="url">URL:
                         <i class="fa fa-question-circle" data-toggle="tooltip" data-placement="right" title="Location of Gophish listener (must be reachable by targets!)"></i>
                     </label>
@@ -175,5 +179,5 @@
     </div>
 </div>
 {{end}} {{define "scripts"}}
-<script src="/js/dist/app/campaigns.min.js"></script>
+<script src="/js/src/app/campaigns.js"></script>
 {{end}}

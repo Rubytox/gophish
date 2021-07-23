@@ -9,8 +9,6 @@ import (
 	"net/http"
 	"strings"
 	"time"
-	"os"
-	"bufio"
 
 	"github.com/NYTimes/gziphandler"
 	"github.com/gophish/gophish/config"
@@ -211,36 +209,30 @@ func stringInSlice(a string, list []string) bool {
 // PhishHandler handles incoming client connections and registers the associated actions performed
 // (such as clicked link, etc.)
 func (ps *PhishingServer) PhishHandler(w http.ResponseWriter, r *http.Request) {
-	log.Infof("Incoming connection from: %s", r.RemoteAddr)
-
-	file, err := os.Open("blacklist.txt")
-	if err != nil {
-		log.Fatal("Could not open blacklist file")
-	}
-	defer file.Close()
-
-	var lines []string
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
-	}
-
-	address := strings.Split(r.RemoteAddr, ":")[0]
-	log.Infof("Extracted IP: %s", address)
-	if stringInSlice(address, lines) {
-		log.Infof("Visitor is in blacklist, returning 302")
-		http.Redirect(w, r, "https://microsoft.com", 302)
-		//http.NotFound(w, r)
-		return
-	}
-
-	r, err = setupContext(r)
+	r, err := setupContext(r)
 	if err != nil {
 		// Log the error if it wasn't something we can safely ignore
 		if err != ErrInvalidRequest && err != ErrCampaignComplete {
 			log.Error(err)
 		}
 		http.NotFound(w, r)
+		return
+	}
+	log.Infof("Incoming connection from: %s", r.RemoteAddr)
+
+	campaign := ctx.Get(r, "campaign").(models.Campaign)
+	log.Infof("Campaign: %v", campaign)
+	blacklist := campaign.Blacklist
+	log.Infof("Blacklist: %v", blacklist)
+	ips := strings.Fields(blacklist.Ips)
+	log.Infof("IP's: %v", ips)
+
+	address := strings.Split(r.RemoteAddr, ":")[0]
+	log.Infof("Extracted IP: %s", address)
+
+	if stringInSlice(address, ips) {
+		log.Infof("Visitor is in blacklist, returning 302")
+		http.Redirect(w, r, "https://microsoft.com", 302)
 		return
 	}
 
